@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import ast
 import gradio as gr
@@ -53,9 +54,11 @@ movies['tags'] = movies['tags'].apply(lambda x: " ".join(x))
 movies['tags'] = movies['tags'].apply(lambda x: x.lower())
 
 # ---- Vectorize + similarity ----
-vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
-vectors = vectorizer.fit_transform(movies['tags']).toarray()
-similarity = cosine_similarity(vectors)
+# NOTE: we keep 'vectors' as a sparse matrix (no .toarray()) to save memory,
+# since converting to a dense array uses far more RAM than needed.
+vectorizer = TfidfVectorizer(max_features=3000, stop_words='english')
+vectors = vectorizer.fit_transform(movies['tags'])
+similarity = cosine_similarity(vectors, dense_output=False)
 
 # ---- Recommend function ----
 def recommend(movie_title):
@@ -66,7 +69,8 @@ def recommend(movie_title):
         return "Movie not found in database. Check spelling!"
 
     idx = matches.index[0]
-    distances = similarity[idx]
+    # Only convert this ONE row to a dense array (cheap), not the whole matrix
+    distances = similarity[idx].toarray().flatten()
     movie_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 
     recommendations = []
@@ -91,4 +95,5 @@ interface = gr.Interface(
 )
 
 if __name__ == "__main__":
-    interface.launch(server_name="0.0.0.0", server_port=7860)
+    port = int(os.environ.get("PORT", 7860))
+    interface.launch(server_name="0.0.0.0", server_port=port)
