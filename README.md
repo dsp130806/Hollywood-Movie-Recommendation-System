@@ -1,5 +1,8 @@
 # 🎬 Hollywood Movie Recommendation System
 
+🔗 **Live Demo:** [Try it here](https://hollywood-movie-recommendation-system-9v89.onrender.com)  
+*(Note: free hosting means the app may take 30-50 seconds to "wake up" if it hasn't been used recently)*
+
 A content-based movie recommendation system that suggests similar movies based on genre, plot, cast, and director — built using Python, scikit-learn, and TF-IDF vectorization.
 
 ## 📌 Overview
